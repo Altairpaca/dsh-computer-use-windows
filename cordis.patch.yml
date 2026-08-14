@@ -1,0 +1,14 @@
+# dsh-computer-use-windows bundle patch.
+# Install via: dsh plugin add dsh-computer-use-windows   (or insert this row into
+# your profile cordis.patch.yml).
+- insert:
+    - id: computer-use-windows
+      name: 'dsh-computer-use-windows'
+      config:
+        # helperPath: override the bundled helper/cu.ps1 location (absolute path).
+        # Default: resolved relative to this package.
+        helperPath: ''
+        # enableVision: advertise the computer_vision tool (config.json still
+        # decides whether it actually calls a provider; pure-OCR mode is set
+        # through config.json "vision.enabled": false).
+        enableVision: true

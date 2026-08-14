@@ -1,0 +1,32 @@
+{
+  "name": "dsh-computer-use-windows",
+  "version": "0.1.0",
+  "description": "Windows Computer Use for DeepSeek Harness: window-bound screenshots, robust OCR, verified clicks, pure-OCR mode, pluggable vision models.",
+  "type": "module",
+  "main": "plugins/index.js",
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "computer-use",
+    "windows",
+    "ocr",
+    "automation"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6",
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check-health.ps1"
+  }
+}

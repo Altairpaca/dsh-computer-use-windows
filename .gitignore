@@ -1,0 +1,25 @@
+# dependencies / build
+node_modules/
+dist/
+*.tgz
+
+# temp artifacts produced by helper
+dsh-cu/
+screen-*.png
+thumb-*.png
+pre-*.png
+ocr-*.json
+req-*.json
+resp-*.json
+vision-*.json
+
+# credentials & secrets
+.env
+*.credentials.yaml
+~/.codex/
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
