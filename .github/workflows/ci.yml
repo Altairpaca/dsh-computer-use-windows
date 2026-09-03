@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows-static:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check plugin JavaScript syntax
+        run: node --check plugins/index.js
+
+      - name: Parse PowerShell sources
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @(
+            'helper/cu.ps1',
+            'scripts/check-health.ps1'
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file),
+              [ref]$tokens,
+              [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error $_.Message }
+              exit 1
+            }
+          }
+
+      - name: Check package and bundle entry points
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $pkg = Get-Content package.json -Raw | ConvertFrom-Json
+          if (-not $pkg.main) { throw 'package.json must declare main' }
+          if (-not (Test-Path $pkg.main)) { throw "package main missing: $($pkg.main)" }
+          if (-not (Test-Path 'cordis.patch.yml')) { throw 'cordis.patch.yml missing' }
+          if (-not (Test-Path 'skills/computer-use-windows/SKILL.md')) { throw 'agent skill contract missing' }
+
+      - name: Explain hosted-runner boundary
+        shell: pwsh
+        run: |
+          Write-Host 'Static CI passed.'
+          Write-Host 'The full helper health path requires Windows Runtime/OCR and an interactive desktop; run scripts/check-health.ps1 on a target Windows workstation.'
