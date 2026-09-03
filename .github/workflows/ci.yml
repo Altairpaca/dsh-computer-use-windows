@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  windows-smoke:
+  windows-static:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +40,18 @@ jobs:
             }
           }
 
-      - name: Run helper health smoke test
+      - name: Check package and bundle entry points
         shell: pwsh
-        run: ./scripts/check-health.ps1
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $pkg = Get-Content package.json -Raw | ConvertFrom-Json
+          if (-not $pkg.main) { throw 'package.json must declare main' }
+          if (-not (Test-Path $pkg.main)) { throw "package main missing: $($pkg.main)" }
+          if (-not (Test-Path 'cordis.patch.yml')) { throw 'cordis.patch.yml missing' }
+          if (-not (Test-Path 'skills/computer-use-windows/SKILL.md')) { throw 'agent skill contract missing' }
+
+      - name: Explain hosted-runner boundary
+        shell: pwsh
+        run: |
+          Write-Host 'Static CI passed.'
+          Write-Host 'The full helper health path requires Windows Runtime/OCR and an interactive desktop; run scripts/check-health.ps1 on a target Windows workstation.'
