@@ -8,9 +8,9 @@ The repository grew out of a real desktop-automation failure mode: coordinate-on
 
 ## Status
 
-**Experimental alpha.** The repository now contains a real DSH plugin wrapper (`plugins/index.js`), helper runtime (`helper/cu.ps1`), bundle patch, skill documentation, health checks, and Windows CI smoke coverage. It is suitable for development and controlled testing, but the project does not yet claim production-grade unattended desktop automation.
+**Experimental alpha.** The repository contains a real DSH plugin wrapper (`plugins/index.js`), helper runtime (`helper/cu.ps1`), bundle patch, skill documentation, local health checks, and hosted Windows static CI. It is suitable for development and controlled testing, but the project does not yet claim production-grade unattended desktop automation.
 
-The remaining release gate is a clean-install / real-DSH validation matrix on representative Windows configurations.
+The remaining release gate is a clean-install / real-DSH validation matrix on representative interactive Windows configurations.
 
 ## Design invariants
 
@@ -68,7 +68,7 @@ No screenshot is intentionally sent to a remote vision model in this mode.
 
 The API key is referenced by environment-variable name; it is not stored in the repository configuration.
 
-## Local smoke check
+## Local interactive smoke check
 
 Requirements:
 
@@ -77,7 +77,7 @@ Requirements:
 - Node.js 20+ for the DSH plugin surface;
 - Windows OCR language packs for OCR-dependent workflows.
 
-Run:
+Run on the **target Windows workstation**:
 
 ```powershell
 ./scripts/check-health.ps1
@@ -92,15 +92,15 @@ $env:CU_ARGS = '{"cmd":"screen"}'
 & ./helper/cu.ps1
 ```
 
-## Automated checks
+## Hosted CI
 
-GitHub Actions runs on `windows-latest` and currently verifies:
+GitHub Actions runs on `windows-latest` and deliberately performs only deterministic checks that are valid on a hosted Windows Server runner:
 
 1. JavaScript syntax for the DSH plugin wrapper;
-2. PowerShell parser correctness for the helper and health-check entry points;
-3. the helper health smoke path on a real Windows runner.
+2. PowerShell parser correctness for the helper and diagnostic entry points;
+3. package / bundle / skill entry-point existence.
 
-This CI is intentionally narrower than the release claim. A hosted runner cannot replace interaction tests against real third-party desktop applications, DPI combinations, and language-pack configurations.
+The full `scripts/check-health.ps1` path is **not** treated as hosted CI because it depends on Windows Runtime/OCR availability and an interactive desktop session. Those properties differ from the target Windows workstation and must be recorded separately as release evidence.
 
 ## Repository map
 
@@ -109,7 +109,7 @@ This CI is intentionally narrower than the release claim. A hosted runner cannot
 ├── plugins/index.js              # DSH-facing tool adapter
 ├── helper/cu.ps1                 # Windows implementation
 ├── skills/computer-use-windows/  # agent-facing usage contract
-├── scripts/check-health.ps1      # local smoke/diagnostic entry point
+├── scripts/check-health.ps1      # local interactive smoke/diagnostic entry point
 ├── docs/
 │   ├── design.zh.md              # architecture and config design
 │   ├── experiment-findings.zh.md # failure analysis from the original workflow
